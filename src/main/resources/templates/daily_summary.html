@@ -1,0 +1,196 @@
+<!--&lt;!&ndash;&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<head>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <meta charset="UTF-8">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <meta name="viewport" content="width=device-width, initial-scale=1.0">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <title>Daily Weather Summary</title>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <link rel="stylesheet" th:href="@{/css/styles.css}" type="text/css">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <script th:src="@{/js/dailySummary.js}" defer></script>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> &lt;!&ndash; Load Chart.js &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</head>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<body>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<div class="container">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <h1>Daily Weather Summary for <span id="cityName"></span></h1>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;    <div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <h2>Weather Summary Details:</h2>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <ul>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <li>Average Temperature: <span id="avgTemp"></span></li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <li>Maximum Temperature: <span id="maxTemp"></span></li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <li>Minimum Temperature: <span id="minTemp"></span></li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <li>Dominant Weather Condition: <span id="dominantCondition"></span></li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        </ul>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;    <div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <h2>Weather Trends</h2>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <canvas id="weatherTrendChart"></canvas> &lt;!&ndash; This will render the weather trend chart &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;    <div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <h2>Triggered Alerts</h2>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <canvas id="alertsChart"></canvas> &lt;!&ndash; This will render the triggered alerts chart &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;</body>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</html>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;-->
+<!--&lt;!&ndash;<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">&ndash;&gt;-->
+<!--&lt;!&ndash;<head>&ndash;&gt;-->
+<!--&lt;!&ndash;    <meta charset="UTF-8">&ndash;&gt;-->
+<!--&lt;!&ndash;    <meta name="viewport" content="width=device-width, initial-scale=1.0">&ndash;&gt;-->
+<!--&lt;!&ndash;    <title>Daily Weather Summary</title>&ndash;&gt;-->
+<!--&lt;!&ndash;    <link rel="stylesheet" th:href="@{/css/styles.css}" type="text/css">&ndash;&gt;-->
+<!--&lt;!&ndash;    <script th:src="@{/js/dailySummary.js}" defer></script>&ndash;&gt;-->
+<!--&lt;!&ndash;    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> &lt;!&ndash; Load Chart.js &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;</head>&ndash;&gt;-->
+<!--&lt;!&ndash;<body>&ndash;&gt;-->
+<!--&lt;!&ndash;<div class="container">&ndash;&gt;-->
+<!--&lt;!&ndash;    <h1>Daily Weather Summary for <span id="cityName"></span></h1>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <div id="summary-container">&ndash;&gt;-->
+<!--&lt;!&ndash;        <h2>Weather Summary Details:</h2>&ndash;&gt;-->
+<!--&lt;!&ndash;        <ul>&ndash;&gt;-->
+<!--&lt;!&ndash;            <li>Average Temperature: <span id="avgTemp"></span></li>&ndash;&gt;-->
+<!--&lt;!&ndash;            <li>Maximum Temperature: <span id="maxTemp"></span></li>&ndash;&gt;-->
+<!--&lt;!&ndash;            <li>Minimum Temperature: <span id="minTemp"></span></li>&ndash;&gt;-->
+<!--&lt;!&ndash;            <li>Dominant Weather Condition: <span id="dominantCondition"></span></li>&ndash;&gt;-->
+<!--&lt;!&ndash;        </ul>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <div>&ndash;&gt;-->
+<!--&lt;!&ndash;        <h2>Weather Trends</h2>&ndash;&gt;-->
+<!--&lt;!&ndash;        <canvas id="weatherTrendChart"></canvas> &lt;!&ndash; This will render the weather trend chart &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Removed the Triggered Alerts section &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;</div>&ndash;&gt;-->
+<!--&lt;!&ndash;</body>&ndash;&gt;-->
+<!--&lt;!&ndash;</html>&ndash;&gt;-->
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Daily Weather Summary</title>-->
+<!--    <link rel="stylesheet" th:href="@{/css/styles.css}" type="text/css">-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> &lt;!&ndash; Include Chart.js &ndash;&gt;-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="container">-->
+<!--    <h1>Daily Weather Summary for <span id="summaryCity"></span></h1>-->
+<!--    <div id="summaryDetails">-->
+<!--        <p><strong>Date:</strong> <span id="summaryDate"></span></p>-->
+<!--        <p><strong>Average Temperature:</strong> <span id="avgTemperature"></span> °C</p>-->
+<!--        <p><strong>Max Temperature:</strong> <span id="maxTemperature"></span> °C</p>-->
+<!--        <p><strong>Min Temperature:</strong> <span id="minTemperature"></span> °C</p>-->
+<!--        <p><strong>Dominant Weather Condition:</strong> <span id="dominantWeatherCondition"></span></p>-->
+<!--    </div>-->
+
+<!--    <h2>Visual Analysis</h2>-->
+<!--    <canvas id="temperatureChart"></canvas>-->
+<!--</div>-->
+
+<!--<script>-->
+<!--    // Function to fetch daily summary data-->
+<!--    const urlParams = new URLSearchParams(window.location.search);-->
+<!--    const city = urlParams.get('city');-->
+
+<!--    fetch(`/daily_summary?city=${city}`)-->
+<!--        .then(response => response.json())-->
+<!--        .then(data => {-->
+<!--            if (data) {-->
+<!--                document.getElementById('summaryCity').innerText = data.city;-->
+<!--                document.getElementById('summaryDate').innerText = data.date;-->
+<!--                document.getElementById('avgTemperature').innerText = data.avgTemperature.toFixed(2);-->
+<!--                document.getElementById('maxTemperature').innerText = data.maxTemperature.toFixed(2);-->
+<!--                document.getElementById('minTemperature').innerText = data.minTemperature.toFixed(2);-->
+<!--                document.getElementById('dominantWeatherCondition').innerText = data.dominantWeatherCondition;-->
+
+<!--                // Call the function to create the chart-->
+<!--                createTemperatureChart(data);-->
+<!--            }-->
+<!--        })-->
+<!--        .catch(error => {-->
+<!--            console.error('Error fetching daily summary:', error);-->
+<!--        });-->
+
+<!--    // Function to create temperature chart-->
+<!--    function createTemperatureChart(data) {-->
+<!--        const ctx = document.getElementById('temperatureChart').getContext('2d');-->
+<!--        const chart = new Chart(ctx, {-->
+<!--            type: 'line',-->
+<!--            data: {-->
+<!--                labels: ['Avg Temperature', 'Max Temperature', 'Min Temperature'],-->
+<!--                datasets: [{-->
+<!--                    label: 'Temperature in °C',-->
+<!--                    data: [data.avgTemperature, data.maxTemperature, data.minTemperature],-->
+<!--                    backgroundColor: 'rgba(75, 192, 192, 0.2)',-->
+<!--                    borderColor: 'rgba(75, 192, 192, 1)',-->
+<!--                    borderWidth: 1-->
+<!--                }]-->
+<!--            },-->
+<!--            options: {-->
+<!--                responsive: true,-->
+<!--                scales: {-->
+<!--                    y: {-->
+<!--                        beginAtZero: true-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Weather Summary for [[${city}]]</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" type="text/css">
+    <script th:src="@{/js/scripts.js}" defer></script>
+</head>
+<body>
+<div class="container">
+    <h1>Daily Weather Summary for [[${city}]]</h1>
+    <div th:if="${summary != null}">
+        <h2>Summary Details</h2>
+        <p>Average Temperature: [[${summary.avgTemperature}]] °C</p>
+        <p>Maximum Temperature: [[${summary.maxTemperature}]] °C</p>
+        <p>Minimum Temperature: [[${summary.minTemperature}]] °C</p>
+        <p>Dominant Weather Condition: [[${summary.dominantWeatherCondition}]]</p>
+    </div>
+    <div th:if="${summary == null}">
+        <p>No data available for this city on the selected date.</p>
+    </div>
+
+    <!-- Visualization Section -->
+    <h2>Historical Weather Data</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Avg Temperature</th>
+            <th>Max Temperature</th>
+            <th>Min Temperature</th>
+            <th>Dominant Condition</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="weather : ${historicalData}">
+            <td th:text="${weather.date}"></td>
+            <td th:text="${weather.avgTemperature}"></td>
+            <td th:text="${weather.maxTemperature}"></td>
+            <td th:text="${weather.minTemperature}"></td>
+            <td th:text="${weather.dominantWeatherCondition}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Monitoring System</title>
+    <link rel="stylesheet" href="/css/styles.css" th:href="@{css/styles.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<!--    <script th:src="@{/js/script.js}" defer></script>-->
+<!--    <script th:src="@{/js/dailySummary.js}" defer></script>-->
+</head>
+<body>
+<div class="container">
+    <h1>Weather Monitoring System</h1>
+
+    <label for="city">Select City:</label>
+    <select id="city">
+        <option value="Delhi">Delhi</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Bangalore">Bangalore</option>
+        <option value="Kolkata">Kolkata</option>
+        <option value="Hyderabad">Hyderabad</option>
+    </select>
+
+    <button id="fetchWeatherBtn">Get Weather</button>
+
+    <div id="weatherDetails" style="display: none">
+        <h3>Weather Details:</h3>
+        <span id="weatherCity"></span><br />
+        <span id="mainCondition"></span><br />
+        <span id="temperature"></span><br />
+        <span id="feelsLike"></span><br />
+        <span id="humidity"></span><br />
+        <span id="windSpeed"></span><br />
+        <!--        <span id="timestamp"></span>-->
+    </div>
+
+    <h2>User Settings</h2>
+    <label for="tempThreshold">Temperature Threshold (°C):</label>
+    <input
+            type="number"
+            id="tempThreshold"
+            min="-3"
+            max="45"
+            placeholder="Enter threshold value"
+            required
+    />
+
+    <label for="userEmail">Email for Alerts:</label>
+    <input
+            type="email"
+            id="userEmail"
+            placeholder="Enter your email"
+            required
+    />
+
+    <label for="citySelect">Select City for Alerts:</label>
+    <select id="citySelect">
+        <option value="Delhi">Delhi</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Bangalore">Bangalore</option>
+        <option value="Kolkata">Kolkata</option>
+        <option value="Hyderabad">Hyderabad</option>
+    </select>
+
+    <button id="saveSettingsBtn">Save Settings</button>
+
+    <h2>Daily Weather Summary</h2>
+    <label for="summaryCity">Select City for Summary:</label>
+    <select id="summaryCity">
+        <option value="Delhi">Delhi</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Bangalore">Bangalore</option>
+        <option value="Kolkata">Kolkata</option>
+        <option value="Hyderabad">Hyderabad</option>
+    </select>
+    <button id="dailySummaryBtn">View Daily Summary</button>
+
+    <div id="summaryResults" style="display: none">
+        <h3>Daily Weather Summary for <span id="summaryCityName"></span></h3>
+        <p>Average Temperature: <span id="avgTemperature"></span> °C</p>
+        <p>Maximum Temperature: <span id="maxTemperature"></span> °C</p>
+        <p>Minimum Temperature: <span id="minTemperature"></span> °C</p>
+        <p>Dominant Weather Condition: <span id="dominantCondition"></span></p>
+<!--        <button id="fetchHistoricalDataBtn">Fetch Historical Data</button>-->
+    </div>
+
+    <div id="historicalData" style="display: none">
+        <h3>Historical Weather Data</h3>
+        <table id="historicalDataTable">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Avg Temperature</th>
+                <th>Max Temperature</th>
+                <th>Min Temperature</th>
+                <th>Dominant Weather Condition</th>
+            </tr>
+            </thead>
+            <tbody id="historicalDataBody"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+  // JavaScript to handle fetching weather data and updating the UI
+
+    document
+  .getElementById("fetchWeatherBtn")
+  .addEventListener("click", function () {
+    const city = document.getElementById("city").value.trim();
+
+    if (!city) {
+      alert("Please select a city.");
+      return;
+    }
+
+    // Fetch weather data for the selected city
+    fetch(`/${city}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("City not found or API error");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Log the data to ensure we're receiving it correctly
+        console.log("Fetched Data: ", data);
+
+        // Update the UI with the fetched weather data
+        document.getElementById("weatherCity").innerText = `City: ${data.city}`;
+        document.getElementById("mainCondition").innerText = `Condition: ${data.mainWeatherCondition}`;
+
+        // Safely access the properties and use toFixed(2) to format numbers
+        document.getElementById("temperature").innerText = `Temperature: ${data.temp.toFixed(2)} °C`;
+        document.getElementById("feelsLike").innerText = `Feels Like: ${data.feelsLike.toFixed(2)} °C`;
+        document.getElementById("humidity").innerText = `Humidity: ${data.humidity} %`;
+        document.getElementById("windSpeed").innerText = `Wind Speed: ${data.windSpeed.toFixed(2)} m/s`;
+
+        // Display the weather details section
+        document.getElementById("weatherDetails").style.display = "block";
+      })
+      .catch((error) => {
+        console.error("Error fetching weather data:", error);
+        document.getElementById("alertMessage").innerText =
+          "Error fetching weather data. Please try again.";
+        document.getElementById("alertMessage").style.display = "block";
+      });
+  });
+
+
+
+  document
+    .getElementById("saveSettingsBtn")
+    .addEventListener("click", function () {
+      const threshold = document.getElementById("tempThreshold").value;
+      const email = document.getElementById("userEmail").value.trim();
+      const city = document.getElementById("citySelect").value;
+
+      if (!email || !validateEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      const userSettings = {
+        tempThreshold: parseFloat(threshold),
+        email: email,
+        city: city,
+      };
+
+      fetch("/settings/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userSettings),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to save settings");
+          }
+          return response.text();
+        })
+        .then((message) => {
+          document.getElementById("alertMessage").innerText = message;
+          document.getElementById("alertMessage").style.display = "block";
+        })
+        .catch((error) => {
+          console.error("Error saving settings:", error);
+          document.getElementById("alertMessage").innerText =
+            "Error saving settings. Please try again.";
+          document.getElementById("alertMessage").style.display = "block";
+        });
+    });
+
+document
+    .getElementById("dailySummaryBtn")
+    .addEventListener("click", function () {
+        const city = document.getElementById("summaryCity").value.trim();
+        if (!city) {
+            alert("Please select a city.");
+            return;
+        }
+
+        fetch(`/daily_summary/${city}`)
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else if (response.status === 204) {
+                    console.log(
+                        "No daily summary data available for the selected city."
+                    );
+                    return null;
+                } else {
+                    throw new Error("Error fetching daily summary data");
+                }
+            })
+            .then((data) => {
+                if (data) {
+                    document.getElementById("summaryCityName").innerText = city;
+                    document.getElementById("avgTemperature").innerText =
+                        data.avgTemperature.toFixed(2);
+                    document.getElementById("maxTemperature").innerText =
+                        data.maxTemperature.toFixed(2);
+                    document.getElementById("minTemperature").innerText =
+                        data.minTemperature.toFixed(2);
+
+                    // Change from dominantCondition to dominantWeatherCondition
+                    document.getElementById("dominantCondition").innerText =
+                        data.dominantWeatherCondition;
+
+                    document.getElementById("summaryResults").style.display =
+                        "block";
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching daily summary:", error);
+                document.getElementById("alertMessage").innerText =
+                    "Error fetching daily summary. Please try again.";
+                document.getElementById("alertMessage").style.display = "block";
+            });
+    });
+
+
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+</script>
+</body>
+</html>
+
+
+
+
